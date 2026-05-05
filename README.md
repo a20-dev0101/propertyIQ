@@ -1,8 +1,8 @@
 # PropertyIQ 🏠
 
-> Investor-grade real estate deal analysis, powered by Claude AI.
+> Investor-grade real estate deal analysis, powered by Claude AI. 
 
-Paste any property listing URL — Zillow, Realtor.com, Redfin, LoopNet, Crexi — and get a full underwriting report back in seconds. PropertyIQ scrapes the listing, pulls live rent comps, runs the numbers, and tells you plainly whether the deal pencils out.
+Paste any property listing URL — Zillow, Realtor.com, Redfin, LoopNet, Crexi — and get a full underwriting report back in seconds. PropertyIQ scrapes the listing, pulls live rent comps, runs the numbers, and tells you plainly whether the deal pencils out. (Productivity & Organization)
 
 Built as a [Claude Skill](https://www.anthropic.com/claude) for real estate investors evaluating single-family rentals and small multifamily acquisitions (1–20 units).
 
