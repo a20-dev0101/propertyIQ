@@ -187,7 +187,7 @@ PropertyIQ is a Claude Skill — it runs inside Claude.ai on Pro, Team, or Enter
 **Step 1:** Clone or download this repo
 
 ```bash
-git clone https://github.com/yourusername/PropertyIQ.git
+git clone https://github.com/yourusername/propertyIQ.git
 ```
 
 **Step 2:** In [Claude.ai](https://claude.ai), go to **Settings → Skills**
