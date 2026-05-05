@@ -97,7 +97,8 @@ Break-Even Rent Per Unit:           $5,231/mo
 Current Rent vs. Break-Even:        -$2,131/mo BELOW break-even
 
 --- MARKET BENCHMARKS (Staten Island / NYC Metro) ---
-Typical Cap Rate (Staten Island SFR): 4.5–6.5%  → Deal is FAR BELOW at 2.64%
+Typical Cap Rate (Staten Island SFR): 4.0–6.0%  → Deal is FAR BELOW at 2.64%
+                                      (Outer-borough NYC: between Tier 1 and Tier 2)
 Typical GRM:                          14–20x     → Deal is at HIGH END at 20.2x
 Target CoC (investor standard):       8–12%      → Deal is deeply below at -14.6%
 DSCR Lender Minimum:                  1.20x      → Deal FAILS at 0.42x
@@ -256,8 +257,9 @@ PropertyIQ uses industry-standard conservative inputs — not broker projections
 | Down Payment | 25% | 25% | 25–30% |
 | Amortization | 30 yr | 25 yr | 25 yr |
 | Vacancy | 5% | 7% | 8% |
-| CapEx Reserve | 10% gross rent | $175/unit/mo | $150/unit/mo |
-| Management Fee | 10% EGI | 10% EGI | 8% EGI |
+| CapEx Reserve | 5–8% gross rent | $100–150/unit/mo | $75–100/unit/mo |
+| Maintenance | $75–125/mo | $50–75/unit/mo | $40–60/unit/mo |
+| Management Fee | 10% EGI | 8–10% EGI | 8% EGI |
 | Interest Rate | Live market rate (searched) | Live market rate | Live commercial rate |
 
 All defaults are shown before running and can be changed.
