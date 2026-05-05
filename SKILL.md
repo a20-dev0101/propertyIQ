@@ -8,15 +8,10 @@ description: >
   makes financial sense. Also triggers when the user says things like "analyze this deal", "run the
   numbers on this property", "is this a good investment", "underwrite this listing", or pastes any
   property address with a purchase price. Can also be invoked directly with /propertyiq [URL or
-  address]. Always produces a detailed text report modeled on a professional underwriting memo,
-  including rent comps, debt service, NOI, cash flow, key metrics, risk flags, and a plain-English
-  verdict. Always includes a Safety Index section with crime statistics and neighborhood
-  safety data for the zip code. Use this skill even when the user just pastes a URL with
-  no other context — that is the primary trigger.
-
-  SCOPE: Single-family rentals (SFR), duplexes, triplexes, quadplexes, and small multifamily
-  (5–20 units). Does NOT cover large multifamily (21+ units), mobile home parks, short-term
-  rentals (Airbnb/VRBO), student housing, or commercial properties.
+  address]. Produces a detailed underwriting memo including rent comps, debt service, NOI, cash
+  flow, key metrics, a Safety Index with crime data for the zip code, risk flags, and a
+  plain-English verdict. Covers SFR, duplexes, triplexes, quadplexes, and 5–20 unit multifamily.
+  Use this skill even when the user just pastes a URL with no other context.
 ---
 
 # PropertyIQ — Small Residential Investment Underwriter
@@ -119,16 +114,17 @@ web_search: "SpotCrime OR CrimeGrade [zip code]"
 
 **Grading scale to apply consistently:**
   A (Very Safe):    Crime well below national avg — top 20% safest nationally
-  B (Safe):         Crime below national avg
-  C (Average):      Near national avg — flag for investor awareness
-  D (Below Average):Crime above national avg — flag as elevated vacancy/tenant risk
-  F (High Risk):    Crime significantly above national avg — flag as major investment risk
+  B (Safe):         Crime meaningfully below national avg
+  C (Average):      Near national avg — acceptable but flag for investor awareness
+  D (Below Average):Crime above national avg — elevated vacancy/tenant/insurance risk
+  F (High Risk):    Crime significantly above national avg — major investment risk flag
 
 **Investor impact framing — always include at least one of these observations:**
 - High property crime → elevated insurance premiums, higher vacancy, tenant turnover risk
 - High violent crime → impacts tenant demand, lender scrutiny, appreciation drag
-- Improving trend → potential value-add signal if buying ahead of neighborhood improvement
-- Declining trend → gentrification risk for existing tenants, positive for appreciation
+- Improving trend (crime declining) → positive for appreciation; potential value-add signal
+  if buying ahead of neighborhood improvement; note gentrification may displace existing tenants
+- Worsening trend (crime rising) → increasing vacancy risk, insurance pressure, value drag
 
 **If data is unavailable:** Note "Safety data unavailable for this zip — recommend
 checking CrimeGrade.org, NeighborhoodScout.com, or local PD crime map before proceeding."
