@@ -1,5 +1,5 @@
 ---
-name: PropertyIQ
+name: propertyiq
 slash_command: propertyiq
 description: >
   Full property underwriting skill for small residential investment properties (SFR and
@@ -14,7 +14,7 @@ description: >
   Use this skill even when the user just pastes a URL with no other context.
 ---
 
-# PropertyIQ — Small Residential Investment Underwriter
+# propertyiq — Small Residential Investment Underwriter
 
 ## Slash Command
 This skill can be invoked directly with:
@@ -26,7 +26,7 @@ When called via slash command, skip the ambient trigger detection and proceed di
 Step 1 with whatever the user provided after the command.
 
 ## Scope
-PropertyIQ covers **small residential investment properties only**:
+propertyiq covers **small residential investment properties only**:
 - Single-Family Rentals (SFR) — 1 unit
 - Small Multifamily — Duplex, Triplex, Quadplex (2–4 units)
 - Mid Multifamily — 5–20 units

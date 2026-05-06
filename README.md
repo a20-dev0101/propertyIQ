@@ -1,8 +1,8 @@
-# PropertyIQ 🏠
+# propertyiq 🏠
 
-> Investor-grade real estate deal analysis, powered by Claude AI. 
+> Investor-grade real estate deal analysis, powered by Claude AI.
 
-Paste any property listing URL — Zillow, Realtor.com, Redfin, LoopNet, Crexi — and get a full underwriting report back in seconds. PropertyIQ scrapes the listing, pulls live rent comps, runs the numbers, and tells you plainly whether the deal pencils out. (Productivity & Organization)
+Paste any property listing URL — Zillow, Realtor.com, Redfin, LoopNet, Crexi — and get a full underwriting report back in seconds. propertyiq scrapes the listing, pulls live rent comps, runs the numbers, and tells you plainly whether the deal pencils out.
 
 Built as a [Claude Skill](https://www.anthropic.com/claude) for real estate investors evaluating single-family rentals and small multifamily acquisitions (1–20 units).
 
@@ -183,17 +183,17 @@ DATA CONFIDENCE: HIGH (price, tax, unit count, HOA all confirmed from
 
 ## Installation
 
-PropertyIQ is a Claude Skill — it runs inside Claude.ai on Pro, Team, or Enterprise plans.
+propertyiq is a Claude Skill — it runs inside Claude.ai on Pro, Team, or Enterprise plans.
 
 **Step 1:** Clone or download this repo
 
 ```bash
-git clone https://github.com/yourusername/propertyIQ.git
+git clone https://github.com/yourusername/propertyiq.git
 ```
 
 **Step 2:** In [Claude.ai](https://claude.ai), go to **Settings → Skills**
 
-**Step 3:** Upload the `PropertyIQ/` folder or the packaged `.skill` file
+**Step 3:** Upload the `propertyiq/` folder or the packaged `.skill` file
 
 **Step 4:** Start a new conversation and paste any listing URL
 
@@ -225,13 +225,13 @@ Or invoke directly with the slash command:
 /propertyiq
 ```
 
-PropertyIQ will scrape the listing, pull comps, then show you the proposed assumptions before running the full analysis. You can override any default before it runs.
+propertyiq will scrape the listing, pull comps, then show you the proposed assumptions before running the full analysis. You can override any default before it runs.
 
 ---
 
 ## Scope
 
-PropertyIQ covers **small residential investment properties**:
+propertyiq covers **small residential investment properties**:
 
 | Property Type | Covered |
 |---|---|
@@ -244,13 +244,13 @@ PropertyIQ covers **small residential investment properties**:
 | Student Housing | ❌ |
 | Commercial / Mixed-Use | ❌ |
 
-Out-of-scope property types require fundamentally different underwriting models — different income structures, loan products, and metrics. Future modules may extend PropertyIQ to cover these categories.
+Out-of-scope property types require fundamentally different underwriting models — different income structures, loan products, and metrics. Future modules may extend propertyiq to cover these categories.
 
 ---
 
 ## Conservative Defaults by Property Type
 
-PropertyIQ uses industry-standard conservative inputs — not broker projections.
+propertyiq uses industry-standard conservative inputs — not broker projections.
 
 | Assumption | SFR | 2–4 Unit | 5–20 Unit |
 |---|---|---|---|
@@ -269,7 +269,7 @@ All defaults are shown before running and can be changed.
 ## File Structure
 
 ```
-PropertyIQ/
+propertyiq/
 ├── README.md                          # You are here
 ├── SKILL.md                           # Core skill instructions for Claude
 ├── LICENSE
@@ -284,11 +284,11 @@ PropertyIQ/
 
 ## Limitations
 
-- **Site scraping**: Zillow and Redfin occasionally block automated fetches. If a URL fails, PropertyIQ falls back to a web search on the address automatically.
+- **Site scraping**: Zillow and Redfin occasionally block automated fetches. If a URL fails, propertyiq falls back to a web search on the address automatically.
 - **Rent estimates**: When comps are thin, the report flags it and recommends a manual Rentometer check.
 - **Short-term rentals**: Models long-term buy-and-hold rentals only. STR/Airbnb potential is flagged but not underwritten.
 - **Property scope**: Designed for residential 1–20 units. Large commercial, hotel, or industrial properties are out of scope.
-- **Not financial advice**: PropertyIQ is a screening tool. Always verify inputs with actual lender quotes, insurance bids, and local market data before making an offer.
+- **Not financial advice**: propertyiq is a screening tool. Always verify inputs with actual lender quotes, insurance bids, and local market data before making an offer.
 
 ---
 
@@ -312,4 +312,4 @@ MIT — free to use, modify, and distribute. See [LICENSE](LICENSE) for details.
 
 ## Disclaimer
 
-PropertyIQ is an AI-powered screening tool for informational purposes only. It does not constitute financial, legal, or investment advice. Always conduct full due diligence and consult qualified professionals before making any real estate investment decision.
+propertyiq is an AI-powered screening tool for informational purposes only. It does not constitute financial, legal, or investment advice. Always conduct full due diligence and consult qualified professionals before making any real estate investment decision.

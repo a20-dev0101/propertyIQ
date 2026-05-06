@@ -1,6 +1,6 @@
-# Contributing to PropertyIQ
+# Contributing to propertyiq
 
-Thanks for your interest in improving PropertyIQ. Contributions of all kinds are welcome — bug fixes, better benchmarks, new features, or documentation improvements.
+Thanks for your interest in improving propertyiq. Contributions of all kinds are welcome — bug fixes, better benchmarks, new features, or documentation improvements.
 
 ---
 
@@ -14,7 +14,7 @@ The three files in `references/` are the most impactful place to contribute:
 - **`insurance-benchmarks.md`** — Regional insurance costs change frequently, especially in disaster-prone states. Updates with sourced data are very welcome.
 
 ### SKILL.md Logic
-If you find a category of property or deal type that PropertyIQ handles poorly, the instructions in `SKILL.md` can be extended. Common gaps:
+If you find a category of property or deal type that propertyiq handles poorly, the instructions in `SKILL.md` can be extended. Common gaps:
 - Mixed-use (residential + commercial)
 - Mobile home parks
 - Short-term rental (Airbnb/VRBO) income modeling
@@ -38,7 +38,7 @@ If a listing URL produces incorrect output, wrong math, or a failed scrape with 
 
 - Keep `SKILL.md` under 500 lines — use `references/` for anything that doesn't need to be in context on every run
 - Conservative defaults over optimistic ones — this tool is a feasibility screen, not a pitch deck
-- Don't add dependencies — PropertyIQ works with zero setup and should stay that way
+- Don't add dependencies — propertyiq works with zero setup and should stay that way
 - One concern per PR — easier to review and merge
 
 ---
