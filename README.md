@@ -172,12 +172,13 @@ DATA CONFIDENCE: HIGH (price, tax, unit count, HOA all confirmed from
 | Rent Comp Analysis | 2–3 live market sources, median comp, flags if >15% off market |
 | Income & Expenses | Full waterfall: GPI → vacancy → EGI → OpEx → NOI |
 | Debt Service & Cash Flow | Monthly P&I, annual cash flow, break-even status |
-| Key Metrics | Cap rate, CoC (2 versions), DSCR, LTV, GRM, 1% rule, price/unit |
+| Key Metrics | Cap rate, CoC (2 versions), DSCR, LTV, GRM, 1% rule, price/unit — with ✅/❌ benchmarks |
 | Market Benchmarks | Deal vs. local cap rates, DSCR minimums, CoC targets |
 | Safety Index | Crime grade, violent & property crime rates vs. national avg, trend, investor impact |
 | Upside Scenarios | Rent growth scenarios, implied value at market cap rate |
 | Risk Flags | 3–6 property-specific risks auto-generated from the data |
 | Bottom Line | Plain-English verdict on feasibility and investment thesis |
+| **Comparison Report** *(multi-property)* | Side-by-side metrics table, pass/fail scorecard, 🏆 winner per metric, ranked recommendation |
 
 ---
 
@@ -203,29 +204,28 @@ git clone https://github.com/yourusername/propertyiq.git
 
 ## Usage
 
-Just paste a listing URL, or describe the property naturally:
+Paste 1, 2, or 3 listing URLs — propertyiq handles both single analysis and side-by-side comparison:
 
 ```
-https://www.zillow.com/homedetails/123-main-st/...
-```
-
-```
-Analyze this deal — 4-unit building in Columbus OH, asking $525k
-```
-
-```
-Is this a good investment? [Redfin link]
-```
-
-Or invoke directly with the slash command:
-
-```
+# Single property
 /propertyiq https://www.zillow.com/homedetails/...
-/propertyiq 123 Main St Columbus OH 525000
-/propertyiq
+
+# Compare two properties
+/propertyiq https://www.zillow.com/... https://www.realtor.com/...
+
+# Compare three properties
+/propertyiq https://www.zillow.com/... https://www.redfin.com/... https://www.loopnet.com/...
+
+# Natural language also works
+Analyze this deal — 4-unit building in Columbus OH, asking $525k [URL]
+Is this a good investment? [URL1] [URL2]
 ```
 
-propertyiq will scrape the listing, pull comps, then show you the proposed assumptions before running the full analysis. You can override any default before it runs.
+propertyiq will scrape all listings, pull comps, then show you the proposed assumptions before running. You can override any default before it runs.
+
+**Output files:**
+- Single property → one `.md` report (e.g. `propertyiq-123-main-st-cleveland.md`)
+- Multi-property → one `.md` per property + `propertyiq-comparison.md` with side-by-side metrics, pass/fail summary, ranking, and plain-English recommendation
 
 ---
 
@@ -278,6 +278,10 @@ propertyiq/
     ├── defaults-by-property-type.md   # Full assumptions table with notes
     ├── cap-rate-benchmarks.md         # Cap rate ranges by US metro tier
     └── insurance-benchmarks.md        # Regional landlord insurance estimates
+
+# Output files generated per run:
+propertyiq-[address].md                # Individual property report
+propertyiq-comparison.md               # Side-by-side comparison (multi-property only)
 ```
 
 ---

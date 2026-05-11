@@ -3,15 +3,15 @@ name: propertyiq
 slash_command: propertyiq
 description: >
   Full property underwriting skill for small residential investment properties (SFR and
-  multifamily up to 20 units). Use this whenever a user provides a real estate listing URL
-  (Zillow, Realtor.com, Redfin, LoopNet, Crexi, MLS, etc.) and wants to analyze whether buying it
-  makes financial sense. Also triggers when the user says things like "analyze this deal", "run the
-  numbers on this property", "is this a good investment", "underwrite this listing", or pastes any
-  property address with a purchase price. Can also be invoked directly with /propertyiq [URL or
-  address]. Produces a detailed underwriting memo including rent comps, debt service, NOI, cash
-  flow, key metrics, a Safety Index with crime data for the zip code, risk flags, and a
-  plain-English verdict. Covers SFR, duplexes, triplexes, quadplexes, and 5–20 unit multifamily.
-  Use this skill even when the user just pastes a URL with no other context.
+  multifamily up to 20 units). Accepts 1–3 listing URLs for single analysis or side-by-side
+  comparison. Use when a user provides listing URLs from Zillow, Realtor.com, Redfin, LoopNet,
+  Crexi, or similar, or says "analyze this deal", "compare these properties", "is this a good
+  investment", or pastes any property address with a purchase price. Invokable with /propertyiq.
+  Outputs formatted .md report files including rent comps, NOI, debt service, cash flow, key
+  metrics with benchmarks, a Safety Index with zip-code crime data, risk flags, and a
+  plain-English verdict. Multi-property mode adds a comparison report with side-by-side metrics,
+  pass/fail scorecard, and ranked recommendation. Covers SFR, duplexes, triplexes, quadplexes,
+  and 5–20 unit multifamily only.
 ---
 
 # propertyiq — Small Residential Investment Underwriter
@@ -19,9 +19,12 @@ description: >
 ## Slash Command
 This skill can be invoked directly with:
   /propertyiq [listing URL]
+  /propertyiq [URL1] [URL2] [URL3]
   /propertyiq [address] [asking price]
   /propertyiq (no argument — prompts user for URL or address)
 
+Accepts 1, 2, or 3 listing URLs in a single invocation. When multiple URLs are provided,
+run a full individual report for each property, then generate a side-by-side comparison.
 When called via slash command, skip the ambient trigger detection and proceed directly to
 Step 1 with whatever the user provided after the command.
 
@@ -43,9 +46,22 @@ what type of analysis would be needed instead.
 
 ---
 
-## Step 1 — Scrape the Listing
+## Step 1 — Detect Mode & Scrape Listings
 
-Use `web_fetch` on the URL the user provides. Extract:
+### 1a. Detect Single vs. Multi-Property Mode
+
+Count the number of listing URLs in the user's message:
+- **1 URL** → Single property mode. Run Steps 2–6 once. Output one `.md` report file.
+- **2–3 URLs** → Multi-property mode. Run Steps 2–5 for EACH property independently.
+  Then run Step 6 (Comparison Report) after all individual reports are complete.
+  Output one `.md` file per property PLUS one comparison `.md` file.
+
+Maximum supported: 3 URLs. If the user pastes more than 3, process the first 3 and
+note that only 3 are supported per run.
+
+### 1b. Scrape Each Listing
+
+For each URL, use `web_fetch` to extract:
 
 **Property facts:**
 - Address, city, state, zip
@@ -62,9 +78,9 @@ Use `web_fetch` on the URL the user provides. Extract:
 - Days on market, price history if visible
 - Any mentioned cap rate or GRM from the listing
 
-If the page is behind a login or returns incomplete data, use `web_search` to look up the address
-directly (e.g. `"123 Main St Springfield IL" site:zillow.com OR site:realtor.com`) and try
-`web_fetch` on the best result.
+If the page is behind a login or returns incomplete data, use `web_search` to look up the
+address directly (e.g. `"123 Main St Springfield IL" site:zillow.com OR site:realtor.com`)
+and try `web_fetch` on the best result.
 
 ---
 
@@ -133,8 +149,13 @@ checking CrimeGrade.org, NeighborhoodScout.com, or local PD crime map before pro
 
 ## Step 3 — Confirm Assumptions with User
 
-Before running numbers, present the scraped data and proposed assumptions in a brief confirmation
-block. Example:
+**Single property mode:** Present scraped data and proposed assumptions for the one property.
+
+**Multi-property mode:** Present a combined confirmation block showing all properties
+side-by-side. Use the same financing defaults for all properties unless the user specifies
+otherwise (different property types may have different defaults per the reference table).
+
+Example (single property):
 
 ```
 I found the following from the listing. Please confirm or correct before I run the analysis:
@@ -158,6 +179,19 @@ I found the following from the listing. Please confirm or correct before I run t
     Maintenance:      $60/unit/mo ($2,160/yr)
     Mgmt Fee:         8% of EGI (standard 3rd-party)
     Points:           0 (conventional loan)
+
+  Override anything? Or type "run it" to proceed.
+```
+
+Example (multi-property — condensed):
+```
+Found 3 properties. Same financing defaults will apply to all unless you specify otherwise.
+
+  Property 1:  123 Main St, Trenton NJ  — Triplex — $485,000 — Rents $1,400/unit
+  Property 2:  456 Oak Ave, Newark NJ   — Duplex  — $320,000 — Rents $1,600/unit
+  Property 3:  789 Pine St, Camden NJ   — SFR     — $185,000 — Rent  $1,800/mo
+
+  Financing defaults: 25% down | 7.25% | 25yr amort | market vacancy | standard reserves
 
   Override anything? Or type "run it" to proceed.
 ```
@@ -230,143 +264,279 @@ For monthly P&I use: M = P × [r(1+r)^n] / [(1+r)^n − 1]
 
 ---
 
-## Step 5 — Build the Report
+## Step 5 — Build the Individual Property Report (.md)
 
-Output the report in this exact format. Do not skip sections. Do not use markdown headers —
-use the ASCII formatting style shown.
+Output each report as a properly formatted Markdown file using the template below.
+Use Markdown headers, tables, and bold — NOT ASCII dividers. Save as:
+  - Single property: `propertyiq-[short-address].md` (e.g. `propertyiq-403-leverett-staten-island.md`)
+  - Multi-property: `propertyiq-[short-address]-1.md`, `propertyiq-[short-address]-2.md`, etc.
 
-```
-========================================================================
-PROPERTY UNDERWRITING: [ADDRESS]
-REPORT DATE: [today's date]
-========================================================================
-
---- PROPERTY OVERVIEW ---
-Type:                   [SFR / Duplex / Triplex / etc.]
-Year Built:             [year]
-Units:                  [count]
-Unit Mix:               [e.g. 3x 2BR/1BA ~750 sqft]
-Utilities:              [Tenant-paid / Owner-paid (list which)]
-Days on Market:         [if known]
-
---- CORE ASSUMPTIONS ---
-Purchase Price:         $[X]
-Down Payment:           $[X] ([X]%)
-Loan Amount:            $[X]
-Interest Rate:          [X]%
-Amortization:           [X] Years
-Vacancy Rate:           [X]%
-CapEx Reserve:          $[X]/unit/mo ($[X] Annual)
-Maintenance/Repairs:    $[X]/unit/mo ($[X] Annual)
-Property Management:    [X]% of EGI ($[X] Annual)
-Closing Cost Estimate:  $[X] ([X]%)
-Origination Points:     $[X] ([X] pts on $[X] loan) [0 if conventional]
-Total Cash to Close:    $[X]
-
---- RENT ROLL ---
-Unit            Type            Monthly Rent        Annual Rent
----------------------------------------------------------------
-[for each unit]
----------------------------------------------------------------
-GROSS TOTAL     [sum mo]                            $[sum ann]
-
---- RENT COMP ANALYSIS ---
-Source 1: [source] → $[X]–$[X]/mo for [bed/bath] in [area]
-Source 2: [source] → $[X]–$[X]/mo
-Median Market Rent:    $[X]/unit/mo
-Listing Rent vs. Market: [X]% [above/below/in-line with] market
-[Flag if >15% variance: "⚠ ABOVE-MARKET RENTS — verify lease terms"]
-
---- INCOME & EXPENSE CALCULATION ---
-Gross Potential Income:             $[X]
-Vacancy Adjustment ([X]%):        -($[X])
------------------------------------------------
-EFFECTIVE GROSS INCOME (EGI):       $[X]
-
-Property Taxes:                   -($[X])
-Insurance:                        -($[X])
-Property Management ([X]%):       -($[X])
-CapEx Reserve:                    -($[X])
-Maintenance/Repairs:              -($[X])
-[Other expense lines if applicable]
------------------------------------------------
-TOTAL OPERATING EXPENSES:         -($[X])
-Operating Expense Ratio:            [X]%
-
-NET OPERATING INCOME (NOI):         $[X]
-
---- DEBT SERVICE & CASH FLOW ---
-Annual Debt Service (P&I):          $[X]
-Monthly Debt Service:               $[X]
------------------------------------------------
-ANNUAL CASH FLOW:                   [+/−]$[X]
-MONTHLY CASH FLOW:                  [+/−]$[X]
-
-STATUS: [POSITIVE CASH FLOW / BREAK-EVEN / NEGATIVE CASH FLOW]
-
---- KEY PERFORMANCE METRICS ---
-Cap Rate:                           [X]%
-Cash-on-Cash Return (Down Pmt):     [X]%
-Cash-on-Cash Return (All-In):       [X]%  (incl. closing costs + points)
-Debt Service Coverage Ratio:        [X]x  [lender min: 1.20x]
-Loan-to-Value (LTV):                [X]%
-Gross Rent Multiplier (GRM):        [X]x
-Price Per Unit:                     $[X]
-1% Rule:                            [X]%  [passes / borderline / fails]
-Break-Even Rent Per Unit:           $[X]/mo
-Current Rent vs. Break-Even:        $[X] [above/below]
-
---- MARKET BENCHMARKS ([city/state]) ---
-Typical Cap Rate (this market):     [X]–[X]%  → Deal is [above/below/in-line]
-Typical GRM:                        [X]–[X]x
-Target CoC (investor standard):     8–12%     → Deal is [above/below]
-DSCR Lender Minimum:                1.20x     → Deal [passes/fails]
-
---- SAFETY INDEX: [zip code] ---
-Overall Safety Grade:       [A/B/C/D/F]  ([source])
-Violent Crime Rate:         [X] per 1,000 residents  (national avg: ~4/1,000)
-Property Crime Rate:        [X] per 1,000 residents  (national avg: ~19/1,000)
-Safer than:                 [X]% of U.S. cities/zip codes
-Crime Trend (3yr):          [Improving / Stable / Worsening]
-Key Finding:                [1–2 sentence plain-English summary of what this means
-                             for the investor — vacancy risk, insurance, tenant demand]
-Source(s):                  [CrimeGrade / NeighborhoodScout / SpotCrime / local PD / etc.]
-[If data unavailable: "Safety data not found for [zip]. Recommend checking CrimeGrade.org
- or NeighborhoodScout.com before proceeding."]
-
---- BREAKEVEN & UPSIDE SCENARIOS ---
-* Current Status: $[X]/unit/mo [above/below] break-even rent
-* At $[+$25/unit]: NOI ~$[X] | Cash Flow ~[+/−]$[X]/yr
-* Rent Growth (+5%): Rent ~$[X]/unit | Cash Flow ~[+/−]$[X]/yr
-* Value at Current Cap ([X]%): $[X]  ([above/below] ask by $[X])
-* Value at Market Cap ([X]%): $[X]
-
---- RISK FLAGS ---
-[Generate 3–6 specific flags based on the actual property data. Examples:]
-1. HIGH LEVERAGE: [X]% LTV → limited equity buffer; sensitive to value declines.
-2. VINTAGE CONSTRUCTION: [year] build → elevated CapEx risk (roof, plumbing, electrical).
-3. VACANCY CONCENTRATION: [X] units → one vacancy = [X]% income loss.
-4. ABOVE-MARKET RENTS: Listing rents $[X] vs. $[X] market median → renewal risk.
-5. NEGATIVE CASH FLOW: Deal requires rent growth to service debt.
-6. [Any property-specific flags: flood zone, deferred maintenance mentions, etc.]
-
---- BOTTOM LINE ---
-[3–5 sentence plain-English verdict. Cover: Is the deal feasible at asking price? What would
-make it work? Is this an appreciation play, cash flow play, or value-add? What's the #1 risk?
-What's the realistic path to positive returns?]
-
-========================================================================
-[Add at end if data was incomplete:]
-DATA GAPS: [list anything that couldn't be confirmed — e.g. "Insurance estimate used; actual
-quote needed." / "Rent comps limited; recommend Rentometer report for zip [XXXXX]."]
-========================================================================
-```
+````markdown
+# propertyiq Report — [FULL ADDRESS]
+**Report Date:** [today's date]
+**Generated by:** propertyiq
 
 ---
 
-## Step 6 — Data Quality Notes
+## Property Overview
 
-At the end, be transparent about confidence level:
+| Field | Details |
+|---|---|
+| **Type** | [SFR / Duplex / Triplex / etc.] |
+| **Year Built** | [year] |
+| **Units** | [count] |
+| **Unit Mix** | [e.g. 3x 2BR/1BA ~750 sqft] |
+| **Utilities** | [Tenant-paid / Owner-paid — list which] |
+| **HOA** | [amount/mo or None] |
+| **Days on Market** | [if known] |
+| **Notable** | [key features from listing] |
+
+---
+
+## Core Assumptions
+
+| Assumption | Value |
+|---|---|
+| **Purchase Price** | $[X] |
+| **Down Payment** | $[X] ([X]%) |
+| **Loan Amount** | $[X] |
+| **Interest Rate** | [X]% |
+| **Amortization** | [X] Years |
+| **Vacancy Rate** | [X]% |
+| **CapEx Reserve** | $[X]/unit/mo ($[X]/yr) |
+| **Maintenance/Repairs** | $[X]/unit/mo ($[X]/yr) |
+| **Property Management** | [X]% of EGI ($[X]/yr) |
+| **Closing Costs** | $[X] ([X]%) |
+| **Origination Points** | $[X] ([X] pts) |
+| **Total Cash to Close** | $[X] |
+
+---
+
+## Rent Roll
+
+| Unit | Type | Monthly Rent | Annual Rent |
+|---|---|---|---|
+| [Unit 1] | [2BR/1BA] | $[X] | $[X] |
+| [Unit 2] | [2BR/1BA] | $[X] | $[X] |
+| **GROSS TOTAL** | | **$[X]** | **$[X]** |
+
+---
+
+## Rent Comp Analysis
+
+| Source | Range | Notes |
+|---|---|---|
+| [Source 1] | $[X]–$[X]/mo | [bed/bath, area] |
+| [Source 2] | $[X]–$[X]/mo | |
+| [Source 3] | $[X]–$[X]/mo | |
+
+**Median Market Rent:** $[X]/unit/mo
+**Listing vs. Market:** [X]% [above / below / in-line]
+> ⚠ [Include warning here if >15% variance from market]
+
+---
+
+## Income & Expense Analysis
+
+| Line Item | Annual | Notes |
+|---|---|---|
+| Gross Potential Income | $[X] | |
+| Vacancy ([X]%) | -$[X] | |
+| **Effective Gross Income (EGI)** | **$[X]** | |
+| Property Taxes | -$[X] | [source] |
+| Insurance | -$[X] | [estimated / confirmed] |
+| Property Management ([X]%) | -$[X] | |
+| CapEx Reserve | -$[X] | |
+| Maintenance/Repairs | -$[X] | |
+| HOA | -$[X] | [if applicable] |
+| **Total Operating Expenses** | **-$[X]** | **OpEx Ratio: [X]%** |
+| **Net Operating Income (NOI)** | **$[X]** | |
+
+---
+
+## Debt Service & Cash Flow
+
+| | Monthly | Annual |
+|---|---|---|
+| P&I Payment | $[X] | $[X] |
+| **Cash Flow** | **[+/−]$[X]** | **[+/−]$[X]** |
+
+> **STATUS: [POSITIVE CASH FLOW / BREAK-EVEN / NEGATIVE CASH FLOW]**
+
+---
+
+## Key Performance Metrics
+
+| Metric | Value | Benchmark | Status |
+|---|---|---|---|
+| Cap Rate | [X]% | [X]–[X]% (local market) | [✅ Above / ⚠ At / ❌ Below] |
+| CoC Return (Down Pmt) | [X]% | 8–12% | [✅ / ⚠ / ❌] |
+| CoC Return (All-In) | [X]% | 8–12% | [✅ / ⚠ / ❌] |
+| DSCR | [X]x | 1.20x min | [✅ Passes / ❌ Fails] |
+| LTV | [X]% | — | — |
+| GRM | [X]x | [X]–[X]x (local) | [✅ / ⚠ / ❌] |
+| Price Per Unit | $[X] | — | — |
+| 1% Rule | [X]% | ≥1.0% | [✅ Passes / ⚠ Borderline / ❌ Fails] |
+| Break-Even Rent/Unit | $[X]/mo | Current: $[X]/mo | $[X] [above/below] |
+
+---
+
+## Safety Index — [zip code]
+
+| Metric | Value | National Average |
+|---|---|---|
+| **Overall Grade** | [A/B/C/D/F] | — |
+| Violent Crime Rate | [X] per 1,000 | ~4 per 1,000 |
+| Property Crime Rate | [X] per 1,000 | ~19 per 1,000 |
+| Safer Than | [X]% of U.S. zips | — |
+| Crime Trend (3yr) | [Improving / Stable / Worsening] | — |
+
+**Investor Impact:** [1–2 sentence plain-English summary]
+**Source(s):** [CrimeGrade / NeighborhoodScout / SpotCrime / local PD]
+
+---
+
+## Breakeven & Upside Scenarios
+
+| Scenario | Rent/Unit | NOI | Annual Cash Flow |
+|---|---|---|---|
+| Current | $[X]/mo | $[X] | [+/−]$[X] |
+| +$25/unit | $[X]/mo | $[X] | [+/−]$[X] |
+| +5% rent growth | $[X]/mo | $[X] | [+/−]$[X] |
+
+**Income-Based Valuation:**
+- At [X]% cap (market lower bound): ~$[X] — $[X] [above/below] ask
+- At [X]% cap (market midpoint): ~$[X] — $[X] [above/below] ask
+
+---
+
+## Risk Flags
+
+1. **[RISK TITLE]** — [specific detail tied to this property's data]
+2. **[RISK TITLE]** — [specific detail]
+3. **[RISK TITLE]** — [specific detail]
+[Add up to 6 total, generated from actual property data]
+
+---
+
+## Bottom Line
+
+[3–5 sentence plain-English verdict. Cover: Is the deal feasible at asking price? What would
+make it work? Is this a cash flow, appreciation, or value-add play? What is the #1 risk?
+What is the realistic path to positive returns?]
+
+---
+
+## Data Notes
+
+**Confidence Level:** [HIGH / MEDIUM / LOW]
+[List any inputs that were estimated rather than confirmed, and what the user should verify.]
+````
+
+---
+
+## Step 6 — Build the Comparison Report (.md) [MULTI-PROPERTY MODE ONLY]
+
+After all individual reports are complete, generate a single comparison file named
+`propertyiq-comparison.md`. This file surfaces the key decision-making metrics
+side-by-side so the investor can rank and choose.
+
+````markdown
+# propertyiq — Property Comparison Report
+**Report Date:** [today's date]
+**Properties Compared:** [count]
+
+---
+
+## Quick Summary
+
+| | [Property 1 Short Address] | [Property 2 Short Address] | [Property 3 Short Address] |
+|---|---|---|---|
+| **Type** | [SFR/Duplex/etc.] | | |
+| **Ask Price** | $[X] | $[X] | $[X] |
+| **Units** | [X] | [X] | [X] |
+| **Year Built** | [X] | [X] | [X] |
+| **Monthly Rent** | $[X] | $[X] | $[X] |
+
+---
+
+## Financial Metrics Comparison
+
+| Metric | [Property 1] | [Property 2] | [Property 3] | Best |
+|---|---|---|---|---|
+| **Cap Rate** | [X]% | [X]% | [X]% | 🏆 [winner] |
+| **CoC Return (Down Pmt)** | [X]% | [X]% | [X]% | 🏆 |
+| **CoC Return (All-In)** | [X]% | [X]% | [X]% | 🏆 |
+| **DSCR** | [X]x | [X]x | [X]x | 🏆 |
+| **NOI** | $[X] | $[X] | $[X] | 🏆 |
+| **Annual Cash Flow** | [+/−]$[X] | [+/−]$[X] | [+/−]$[X] | 🏆 |
+| **Monthly Cash Flow** | [+/−]$[X] | [+/−]$[X] | [+/−]$[X] | 🏆 |
+| **GRM** | [X]x | [X]x | [X]x | 🏆 (lowest) |
+| **1% Rule** | [X]% | [X]% | [X]% | 🏆 |
+| **Break-Even Rent/Unit** | $[X] | $[X] | $[X] | 🏆 (lowest) |
+| **Total Cash to Close** | $[X] | $[X] | $[X] | 🏆 (lowest) |
+| **Price Per Unit** | $[X] | $[X] | $[X] | 🏆 (lowest) |
+
+---
+
+## Safety Index Comparison
+
+| Metric | [Property 1] | [Property 2] | [Property 3] |
+|---|---|---|---|
+| **Zip Code** | [X] | [X] | [X] |
+| **Safety Grade** | [A–F] | [A–F] | [A–F] |
+| **Violent Crime / 1k** | [X] | [X] | [X] |
+| **Property Crime / 1k** | [X] | [X] | [X] |
+| **Safer Than** | [X]% | [X]% | [X]% |
+| **Crime Trend** | [↑/→/↓] | [↑/→/↓] | [↑/→/↓] |
+
+---
+
+## Pass / Fail Summary
+
+| Check | [Property 1] | [Property 2] | [Property 3] |
+|---|---|---|---|
+| DSCR ≥ 1.20x | [✅/❌] | [✅/❌] | [✅/❌] |
+| 1% Rule ≥ 1.0% | [✅/❌] | [✅/❌] | [✅/❌] |
+| Positive Cash Flow | [✅/❌] | [✅/❌] | [✅/❌] |
+| Cap Rate at/above market | [✅/❌] | [✅/❌] | [✅/❌] |
+| CoC ≥ 8% | [✅/❌] | [✅/❌] | [✅/❌] |
+| Safety Grade C or above | [✅/❌] | [✅/❌] | [✅/❌] |
+| **Total Passes** | [X]/6 | [X]/6 | [X]/6 |
+
+---
+
+## Ranking & Recommendation
+
+**#1 — [Address]**
+[2–3 sentences on why this ranks first — strongest metric, best risk-adjusted return,
+best safety profile, lowest cash to close, etc.]
+
+**#2 — [Address]**
+[2–3 sentences on why this ranks second — what it does well, where it falls short vs. #1]
+
+**#3 — [Address]** *(if applicable)*
+[2–3 sentences]
+
+---
+
+## Overall Verdict
+
+[3–5 sentence plain-English conclusion. Which property is the best investment and why?
+Are any of them worth pursuing at asking price? Is there a clear winner or are they
+close enough that investor preference (market, property type, capital available) should
+decide? Flag any deal that should be eliminated outright.]
+
+---
+
+*Individual property reports: [list filenames]*
+````
+
+---
+
+## Step 7 — Data Quality Notes
+
+At the end of each individual report, be transparent about confidence level:
 - **HIGH**: All key inputs scraped or confirmed from public records
 - **MEDIUM**: 1–2 inputs estimated (flag which)
 - **LOW**: Rents or expenses are estimated — flag prominently and recommend user verification
