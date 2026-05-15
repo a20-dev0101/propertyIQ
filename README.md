@@ -271,17 +271,20 @@ All defaults are shown before running and can be changed.
 ```
 propertyiq/
 ├── README.md                          # You are here
-├── SKILL.md                           # Core skill instructions for Claude
+├── SKILL.md                           # Core skill logic and pipeline steps
 ├── LICENSE
 ├── CONTRIBUTING.md
+├── templates/
+│   ├── report.md                      # Individual property report template
+│   └── comparison.md                  # Multi-property comparison template
 └── references/
     ├── defaults-by-property-type.md   # Full assumptions table with notes
     ├── cap-rate-benchmarks.md         # Cap rate ranges by US metro tier
     └── insurance-benchmarks.md        # Regional landlord insurance estimates
 
 # Output files generated per run:
-propertyiq-[address].md                # Individual property report
-propertyiq-comparison.md               # Side-by-side comparison (multi-property only)
+propertyiq-[address].md                # Individual property report (filled from templates/report.md)
+propertyiq-comparison.md               # Side-by-side comparison (filled from templates/comparison.md)
 ```
 
 ---
